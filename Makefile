@@ -1,6 +1,9 @@
 install:
 	go install ./...
 
+build:
+	go build ./...
+
 fmt:
 	gofmt -w *.go */*.go
 
