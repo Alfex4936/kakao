@@ -34,6 +34,16 @@ func (s SimpleText) Build(msg string) *SimpleText {
 	return &s
 }
 
+func (c *Carousel) Build() K {
+	template := K{"outputs": []K{{"carousel": K{"type": "basicCard", "items": c.Cards}}}}
+	carousel := K{"version": "2.0", "template": template}
+	return carousel
+}
+
+func (b BasicCard) Build() *BasicCard {
+	return &b
+}
+
 // * New() function
 
 // New (l ListCard) Qr (bool) whether to use QuickReplies or not
@@ -51,6 +61,27 @@ func (s ShareButton) New(label string) *ShareButton {
 	s.Action = "share"
 	s.Label = label
 	return &s
+}
+
+// New (c Carousel): header (bool)
+func (c Carousel) New(header bool) *Carousel {
+	c.Type = "label"
+	c.Cards = new(Kakao)
+	if header {
+		c.Header = new(CarouselHeader)
+	}
+	return &c
+}
+
+// New (b BasicCard): tb, btn (bool)  썸네일, 버튼 사용 여부
+func (b BasicCard) New(tb, btn bool) *BasicCard {
+	if tb {
+		b.ThumbNail = new(ThumbNail)
+	}
+	if btn {
+		b.Buttons = new(Kakao)
+	}
+	return &b
 }
 
 // New (q QuickReply): label (string), msg (string)

@@ -2,6 +2,8 @@
 <p>
     <img width="680" src="https://github.com/Alfex4936/kakaoChatbot-Ajou/blob/main/imgs/chatbot.png">
 </p>
+<a href="https://pkg.go.dev/github.com/Alfex4936/kakao"><img src="https://pkg.go.dev/badge/github.com/Alfex4936/kakao.svg" alt="Go Reference"></a>
+
 <h1>카카오톡 챗봇 빌더 도우미</h1>
 <h2>Go언어용 WIP</h2>
 </div>

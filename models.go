@@ -1,5 +1,44 @@
 package kakao
 
+// Carousel ...
+type Carousel struct {
+	Type   string          `json:"type,omitempty"`
+	Cards  *Kakao          `json:"items,omitempty"` // items
+	Header *CarouselHeader `json:"header,omitempty"`
+}
+
+// CarouselHeader 필수 여부 X
+type CarouselHeader struct {
+	Title     string     `json:"title"`
+	Desc      string     `json:"description"`
+	ThumbNail *ThumbNail `json:"thumbnail"`
+}
+
+// BasicCard Title, Thumbnail 중 하나는 있어야 합니다.
+type BasicCard struct {
+	Title     string     `json:"title,omitempty"`       // 필수 X, 최대 2줄
+	Desc      string     `json:"description,omitempty"` // 필수 X, 최대 230자, Carousel에선 76자
+	ThumbNail *ThumbNail `json:"thumbnail,omitempty"`   // 필수 X
+	Buttons   *Kakao     `json:"buttons,omitempty"`     // 필수 X, 최대 3개
+}
+
+/* ThumbNail ...
+"thumbnails": [
+	{
+		"imageUrl": "http://k.kakaocdn.net/dn/83BvP/bl20duRC1Q1/lj3JUcmrzC53YIjNDkqbWK/i_6piz1p.jpg", 필수 O
+		"link": {
+			"web": "https://store.kakaofriends.com/kr/products/1542"
+		} 필수 여부 X
+	}
+	]
+*/
+// ThumbNail
+type ThumbNail struct {
+	ImageURL   string `json:"imageUrl"`             // 필수 O
+	Link       *Link  `json:"link,omitempty"`       // 필수 X
+	FixedRatio bool   `json:"fixedRatio,omitempty"` // 필수 X
+}
+
 // ListCard ...
 type ListCard struct {
 	Title        interface{} `json:"header"`
@@ -26,7 +65,7 @@ type Text struct {
 // QuickReply ...
 type QuickReply struct {
 	Action  string `json:"action"` // message 또는 block
-	Label   string `json:"label"`
+	Label   string `json:"label"`  // 필수
 	Msg     string `json:"messageText"`
 	BlockID string `json:"blockId,omitempty"` // action "block"일 때 필수임
 	Extra   *Kakao `json:"extra,omitempty"`
@@ -36,33 +75,33 @@ type QuickReply struct {
 
 // ShareButton ...
 type ShareButton struct {
-	Action string `json:"action"`
-	Label  string `json:"label"`
+	Action string `json:"action"`                // 필수
+	Label  string `json:"label"`                 // 필수
 	MsgTxt string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
 
 }
 
 // LinkButton ...
 type LinkButton struct {
-	Action  string `json:"action"`
-	Label   string `json:"label"`
+	Action  string `json:"action"` // 필수
+	Label   string `json:"label"`  // 필수
 	WebLink string `json:"webLinkUrl"`
 	MsgTxt  string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
 }
 
 // MsgButton ,...
 type MsgButton struct {
-	Label   string `json:"label"` // 버튼 14자(가로배열 2개 8자)
-	Action  string `json:"action"`
+	Label   string `json:"label"`                 // 버튼 14자(가로배열 2개 8자) 필수
+	Action  string `json:"action"`                // 필수
 	MsgTxt  string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
 	BlockID string `json:"blockId,omitempty"`
 }
 
 // CallButton ,...
 type CallButton struct {
-	Label       string `json:"label"`  // 버튼 14자(가로배열 2개 8자)
-	Action      string `json:"action"` // phone
-	PhoneNumber string `json:"phoneNumber"`
+	Label       string `json:"label"`                 // 버튼 14자(가로배열 2개 8자) 필수
+	Action      string `json:"action"`                // phone 필수
+	PhoneNumber string `json:"phoneNumber"`           // 필수
 	MsgTxt      string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
 	BlockID     string `json:"blockId,omitempty"`
 }
