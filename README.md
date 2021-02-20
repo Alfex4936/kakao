@@ -19,6 +19,11 @@ SimpleText, SimpleImage, ListCard, Carousel, BasicCard, ContextControl JSON 데�
 ubuntu:~$ go get -u github.com/Alfex4936/kakao
 ```
 
+# 응답 타입별 아이템
+
+Buttons: ShareButton (공유 버튼), LinkButton (링크 버튼), MsgButton (일반 메시지만), CallButton (전화 버튼)
+
+Items: ListItem (일반), ListItemLink (링크 버전)
 
 # 사용법 (gin 프레임워크 기준)
 
@@ -27,6 +32,8 @@ ubuntu:~$ go get -u github.com/Alfex4936/kakao
 예제) 유저 발화문 얻기: kjson.UserRequest.Utterance
 
 ```go
+import k "github.com/Alfex4936/kakao"
+
 // JSON 요청 처리
 var kjson k.Request
 if err := c.BindJSON(&kjson); err != nil {

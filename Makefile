@@ -19,7 +19,7 @@ push:
 push-tag:
 	git push origin main --tags
 
-.PHONY: tag
+.PHONY: tag update-pkg-cache
 
 tag:
 	git tag -a $(VERSION) -m $(MSG)
@@ -27,3 +27,8 @@ tag:
 delete-tag:
 	git tag -d $(VERSION)
 	git push origin :$(VERSION)
+
+update-pkg-cache:
+    set GOPROXY=https://proxy.golang.org
+	set GO111MODULE=on
+	go get github.com/$(USER)/$(PACKAGE)@v$(VERSION)
