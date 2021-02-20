@@ -11,60 +11,49 @@
 ```go
 import k "github.com/Alfex4936/kakao"
 
-func GetTodayNotice(c *gin.Context) {
-    // ListCard
-	var buttons k.Kakao
-	var quickReplies k.Kakao
-	var items k.Kakao
-	var label string
-	var title string
-    // ListCard
+// POST /simpletext
+func returnSimpleText(c *gin.Context) {
+	c.JSON(200, k.SimpleText{}.Build("메시지 입니다."))
+}
 
-    // Parse
-	var notices []models.Notice = Parse("", 30)
-	now := time.Now()
-	nowStr := fmt.Sprintf("%v.%02v.%v", now.Year()%100, int(now.Month()), now.Day())
-	title = fmt.Sprintf("%v) 오늘 공지", nowStr)
+// POST /listcard
+func returnListCard(c *gin.Context) {
+	listCard := k.ListCard{}.New(true) // whether to use quickReplies or not
 
-	// Filtering out today's notice(s)
-	for i, notice := range notices {
-		if notice.Date != nowStr {
-			notices = notices[:i]
-			break
-		}
-	}
+	listCard.Title = "Hello ListCard"
 
-	if len(notices) > 5 {
-		label = fmt.Sprintf("%v개 더보기", len(notices)-5)
-		notices = notices[:5]
-	} else {
-		label = "아주대학교 공지"
-	}
+	// ListItem: Title, Description, imageUrl
+	listCard.Items.Add(k.ListItem{}.New("안녕하세요!", "", "http://image"))
+	// LinkListItem: Title, Description, imageUrl, address
+	listCard.Items.Add(k.ListItemLink{}.New("안녕하세요!", "", "", "https://www.naver.com/"))
 
-	if len(notices) == 0 {
-		items.Add(k.ListItem{}.New("공지가 없습니다!", "", "http://k.kakaocdn.net/dn/APR96/btqqH7zLanY/kD5mIPX7TdD2NAxgP29cC0/1x1.jpg"))
-	} else {
-		for _, notice := range notices {
-			if utf8.RuneCountInString(notice.Title) > 35 { // To count korean letters length correctly
-				notice.Title = string([]rune(notice.Title)[0:32]) + "..."
-			}
-			description := fmt.Sprintf("%v %v", notice.Writer, notice.Date[len(notice.Date)-5:])
-			noticeJSON := k.ListItemLink{}.New(notice.Title, description, "", notice.Link)
-			items.Add(noticeJSON)
-		}
-	}
+	listCard.Buttons.Add(k.ShareButton{}.New("공유하기"))
+	listCard.Buttons.Add(k.LinkButton{}.New("네이버 링크", "https://www.naver.com/"))
 
-	buttons.Add(k.ShareButton{}.New("공유하기"))
-	buttons.Add(k.LinkButton{}.New(label, AjouLink))
+	// QuickReplies: label, message (메시지 없으면 라벨로 발화)
+	listCard.QuickReplies.Add(k.QuickReply{}.New("오늘", "오늘 날씨 알려줘"))
+	listCard.QuickReplies.Add(k.QuickReply{}.New("어제", "어제 날씨 알려줘"))
 
-	quickReplies.Add(k.QuickReply{}.New("오늘", "오늘 공지 보여줘"))
-	quickReplies.Add(k.QuickReply{}.New("어제", "어제 공지 보여줘"))
-
-	c.JSON(200, k.BuildListCard(title, items, buttons, quickReplies))
+	c.JSON(200, listCard.Build())
 }
 ```
 
 ```yaml
+# SimpleText /simpletext
+{
+    "template": {
+        "outputs": [
+            {
+                "simpleText": {
+                    "text": "메시지 입니다."
+                }
+            }
+        ]
+    },
+    "version": "2.0"
+}
+
+# ListCard /listcard
 {
     "template": {
         "outputs": [
@@ -77,16 +66,23 @@ func GetTodayNotice(c *gin.Context) {
                         },
                         {
                             "action": "webLink",
-                            "label": "5개 더보기",
-                            "webLinkUrl": "https://www.ajou.ac.kr/kr/ajou/notice.do"
+                            "label": "네이버 링크",
+                            "webLinkUrl": "https://www.naver.com/"
                         }
                     ],
                     "header": {
-                        "title": "21.02.19) 오늘 공지"
+                        "title": "Hello ListCard"
                     },
                     "items": [
                         {
-                            ... 공지 ITEMS
+                            "imageUrl": "http://image",
+                            "title": "안녕하세요!"
+                        },
+                        {
+                            "title": "안녕하세요!",
+                            "link": {
+                                "web": "https://www.naver.com/"
+                            }
                         }
                     ]
                 }
@@ -96,12 +92,12 @@ func GetTodayNotice(c *gin.Context) {
             {
                 "action": "message",
                 "label": "오늘",
-                "messageText": "오늘 공지 보여줘"
+                "messageText": "오늘 날씨 알려줘"
             },
             {
                 "action": "message",
                 "label": "어제",
-                "messageText": "어제 공지 보여줘"
+                "messageText": "어제 날씨 알려줘"
             }
         ]
     },

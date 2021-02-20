@@ -6,7 +6,7 @@ type Kakao []interface{}
 // K is map[string]interface{}
 type K map[string]interface{}
 
-// Add all interface into Kakao object
+// Add all interfaces into Kakao object
 func (k *Kakao) Add(s ...interface{}) {
 	for _, inter := range s {
 		*k = append(*k, inter)

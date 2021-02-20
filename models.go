@@ -1,12 +1,14 @@
 package kakao
 
-type ShareButton struct {
-	Action string `json:"action"`
-	Label  string `json:"label"`
-	MsgTxt string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
-
+// ListCard ...
+type ListCard struct {
+	Title        interface{} `json:"header"`
+	Buttons      *Kakao      `json:"buttons"`
+	QuickReplies *Kakao      `json:"quickReplies,omitempty"`
+	Items        *Kakao      `json:"items"`
 }
 
+// SimpleText ...
 type SimpleText struct {
 	Template struct {
 		Outputs []struct {
@@ -30,6 +32,17 @@ type QuickReply struct {
 	// Extra   K  `json:"extra,omitempty"`
 }
 
+// * Buttons START
+
+// ShareButton ...
+type ShareButton struct {
+	Action string `json:"action"`
+	Label  string `json:"label"`
+	MsgTxt string `json:"messageText,omitempty"` // MsgTxt가 있으면 이게 발화로 나감, 없으면 Label이 발화
+
+}
+
+// LinkButton ...
 type LinkButton struct {
 	Action  string `json:"action"`
 	Label   string `json:"label"`
@@ -54,12 +67,18 @@ type CallButton struct {
 	BlockID     string `json:"blockId,omitempty"`
 }
 
+// * Buttons END
+
+// * Items START
+
+// ListItem ...
 type ListItem struct {
-	Title string `json:"title"`
-	Desc  string `json:"description,omitempty"`
 	Image string `json:"imageUrl,omitempty"`
+	Desc  string `json:"description,omitempty"`
+	Title string `json:"title"`
 }
 
+// ListItemLink ...
 type ListItemLink struct {
 	Title string `json:"title"`
 	Desc  string `json:"description,omitempty"`
@@ -67,11 +86,14 @@ type ListItemLink struct {
 	Link  Link   `json:"link"` // omit possible
 }
 
+// Link for ListItemLink
 type Link struct {
 	Link string `json:"web"`
 }
 
-// Request request main
+// * Items END
+
+// Request 카카오 서버에서 POST된 JSON 데이터용
 type Request struct {
 	Action struct {
 		ID          string `json:"id"`

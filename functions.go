@@ -3,9 +3,21 @@ Package kakao 카카오 챗봇을 쉽게 만들 수 있게 도와줍니다.
 */
 package kakao // import "github.com/Alfex4936/kakao"
 
-// BuildSimpleText takes msg (string)
-func BuildSimpleText(msg string) *SimpleText {
-	stext := &SimpleText{Version: "2.0"}
+// * Build() function
+
+// Build (l *ListCard)
+func (l *ListCard) Build() K {
+	l.Title = K{"title": l.Title.(string)}
+	template := K{"outputs": []K{{"listCard": K{"header": l.Title, "items": l.Items, "buttons": l.Buttons}}}}
+	template["quickReplies"] = l.QuickReplies
+
+	listCard := K{"version": "2.0", "template": template}
+
+	return listCard
+}
+
+func (s SimpleText) Build(msg string) *SimpleText {
+	s.Version = "2.0"
 
 	var temp []struct {
 		SimpleText Text `json:"simpleText"`
@@ -18,25 +30,20 @@ func BuildSimpleText(msg string) *SimpleText {
 
 	temp = append(temp, text)
 
-	stext.Template.Outputs = temp
-	return stext
+	s.Template.Outputs = temp
+	return &s
 }
 
-// BuildListCard takes title string, items, buttons, quickReplies []interface{}
-func BuildListCard(title string, items, buttons, quickReplies []interface{}) K {
-	// Card
-	header := K{"title": title}
+// * New() function
 
-	// Make a template
-	template := K{"outputs": []K{{"listCard": K{"header": header, "items": items, "buttons": buttons}}}}
-
-	if len(quickReplies) > 0 {
-		template["quickReplies"] = quickReplies // Optional
+// New (l ListCard) Qr (bool) whether to use QuickReplies or not
+func (l ListCard) New(Qr bool) *ListCard {
+	l.Buttons = new(Kakao)
+	l.Items = new(Kakao)
+	if Qr {
+		l.QuickReplies = new(Kakao)
 	}
-
-	listCard := K{"version": "2.0", "template": template}
-
-	return listCard
+	return &l
 }
 
 // New (s ShareButton): label (string)
