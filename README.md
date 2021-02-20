@@ -4,9 +4,15 @@
 </p>
 <a href="https://pkg.go.dev/github.com/Alfex4936/kakao"><img src="https://pkg.go.dev/badge/github.com/Alfex4936/kakao.svg" alt="Go Reference"></a>
 
-<h1>카카오톡 챗봇 빌더 도우미</h1>
-<h2>Go언어 전용</h2>
+<h2>카카오톡 챗봇 빌더 도우미</h2>
+<h3>Go언어 전용</h3>
 </div>
+
+# 소개
+
+파이썬처럼 dictionary 타입을 쉽게 이용할 수 있지 않기 때문에,
+
+SimpleText, SimpleImage, ListCard, Carousel, BasicCard, ContextControl JSON 데이터를 쉽게 만들 수 있도록 도와줍니다.
 
 # 설치
 ```console
@@ -31,9 +37,11 @@ if err := c.BindJSON(&kjson); err != nil {
 fmt.Println(kjson.UserRequest.Utterance)  // 유저 발화문
 ```
 
-## SimpleText, ListCard
+## SimpleText, SimpleImage ListCard
 
 SimpleText는 메시지만 넘기면 됩니다.
+
+SimpleImage는 이미지 주소와 로딩 실패 메시지를 넘기면 됩니다.
 
 ListCard는 New() 초기화 후, 아이템들 입력 후 Build()
 
@@ -49,7 +57,12 @@ if err := c.BindJSON(&kjson); err != nil {
 
 // POST /simpletext
 func returnSimpleText(c *gin.Context) {
-	c.JSON(200, k.SimpleText{}.Build("메시지 입니다."))
+	c.PureJSON(200, k.SimpleText{}.Build("메시지 입니다."))
+}
+
+// POST /simpleimage
+func returnSimpleText(c *gin.Context) {
+	c.PureJSON(200, k.SimpleImage{}.Build("http://", "ALT"))
 }
 
 // POST /listcard
@@ -70,7 +83,7 @@ func returnListCard(c *gin.Context) {
 	listCard.QuickReplies.Add(k.QuickReply{}.New("오늘", "오늘 날씨 알려줘"))
 	listCard.QuickReplies.Add(k.QuickReply{}.New("어제", "어제 날씨 알려줘"))
 
-	c.JSON(200, listCard.Build())
+	c.PureJSON(200, listCard.Build())
 }
 ```
 
@@ -112,5 +125,28 @@ func returnCarousel(c *gin.Context) {
 	}
 
 	c.PureJSON(200, carousel.Build())
+}
+```
+
+## ContextControl
+
+name, lifeSpan, params을 받습니다.
+
+(params는 필수 여부가 아니므로 nil 처리로 표시 X)
+
+```go
+import k "github.com/Alfex4936/kakao"
+
+// ContextControl 만들기
+func returnContextControl(c *gin.Context) {
+	params1 := map[string]string{
+		"key1": "val1",
+		"key2": "val2",
+	}
+	ctx := k.ContextControl{}.New()
+	ctx.Values.Add(k.ContextValue{}.New("abc", 10, params1))
+	ctx.Values.Add(k.ContextValue{}.New("ghi", 0, nil))
+
+	c.PureJSON(200, ctx.Build())
 }
 ```

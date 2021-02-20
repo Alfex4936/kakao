@@ -4,6 +4,9 @@ install:
 build:
 	go build ./...
 
+test:
+	go test -v
+
 fmt:
 	gofmt -w *.go */*.go
 
@@ -20,3 +23,7 @@ push-tag:
 
 tag:
 	git tag -a $(VERSION) -m $(MSG)
+
+delete-tag:
+	git tag -d $(VERSION)
+	git push origin :$(VERSION)

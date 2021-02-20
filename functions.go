@@ -36,6 +36,13 @@ func (s SimpleText) Build(msg string) *SimpleText {
 	return &s
 }
 
+// Build (s SimpleImage)
+func (s SimpleImage) Build(url, alt string) K {
+	template := K{"outputs": []K{{"simpleImage": K{"imageUrl": url, "altText": alt}}}}
+	simpleImage := K{"version": "2.0", "template": template}
+	return simpleImage
+}
+
 // Build (c *Carousel)
 func (c *Carousel) Build() K {
 	var template K
@@ -53,6 +60,13 @@ func (b BasicCard) Build() K {
 	template := K{"outputs": []K{{"basicCard": b}}}
 	basicCard := K{"version": "2.0", "template": template}
 	return basicCard
+}
+
+// Build (ctx ContextControl)
+func (ctx ContextControl) Build() K {
+	context := K{"values": ctx.Values}
+	contextControl := K{"version": "2.0", "context": context}
+	return contextControl
 }
 
 // * New() function
@@ -158,4 +172,20 @@ func (l ListItemLink) New(params ...string) *ListItemLink {
 		l.Link.Link = params[3]
 	}
 	return &l
+}
+
+// New (ctx ContextControl)
+func (ctx ContextControl) New() *ContextControl {
+	ctx.Values = new(Kakao)
+	return &ctx
+}
+
+// New (ctv ContextValue)
+func (ctv ContextValue) New(name string, lifeSpan int, params map[string]string) *ContextValue {
+	ctv.Name = name
+	ctv.LifeSpan = lifeSpan
+	if params != nil {
+		ctv.Params = params
+	}
+	return &ctv
 }
