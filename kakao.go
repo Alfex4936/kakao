@@ -1,12 +1,12 @@
 package kakao
 
-// Kakao is []interface{}
+// Kakao = []interface{}
 type Kakao []interface{}
 
-// K is map[string]interface{}
+// K = map[string]interface{}
 type K map[string]interface{}
 
-// Add all interfaces into Kakao object
+// Add 모든 객체를 Kakao 객체에 담습니다.
 func (k *Kakao) Add(s ...interface{}) {
 	for _, inter := range s {
 		*k = append(*k, inter)

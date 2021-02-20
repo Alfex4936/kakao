@@ -1,17 +1,51 @@
 <div align="center">
 <p>
-    <img width="680" src="https://github.com/Alfex4936/kakaoChatbot-Ajou/blob/main/imgs/chatbot.png">
+    <img width="680" src="https://raw.githubusercontent.com/Alfex4936/kakaoChatbot-Ajou/main/imgs/chatbot.png">
 </p>
 <a href="https://pkg.go.dev/github.com/Alfex4936/kakao"><img src="https://pkg.go.dev/badge/github.com/Alfex4936/kakao.svg" alt="Go Reference"></a>
 
 <h1>카카오톡 챗봇 빌더 도우미</h1>
-<h2>Go언어용 WIP</h2>
+<h2>Go언어 전용</h2>
 </div>
 
+# 설치
+```console
+ubuntu:~$ go get -u github.com/Alfex4936/kakao
+```
 
-## Gin 웹프레임워크 예제
+
+# 사용법 (gin 프레임워크 기준)
+
+## 카카오 JSON 데이터 Bind
+
+예제) 유저 발화문 얻기: kjson.UserRequest.Utterance
+
+```go
+// JSON 요청 처리
+var kjson k.Request
+if err := c.BindJSON(&kjson); err != nil {
+	c.AbortWithStatusJSON(200, k.SimpleText{}.Build("에러"))
+	return
+}
+
+fmt.Println(kjson.UserRequest.Utterance)  // 유저 발화문
+```
+
+## SimpleText, ListCard
+
+SimpleText는 메시지만 넘기면 됩니다.
+
+ListCard는 New() 초기화 후, 아이템들 입력 후 Build()
+
 ```go
 import k "github.com/Alfex4936/kakao"
+
+// 카카오 POST json 데이터
+var kjson k.Request
+if err := c.BindJSON(&kjson); err != nil {
+    c.AbortWithStatusJSON(200, k.SimpleText{}.Build("잠시 후 다시"))
+    return
+}
 
 // POST /simpletext
 func returnSimpleText(c *gin.Context) {
@@ -40,69 +74,43 @@ func returnListCard(c *gin.Context) {
 }
 ```
 
-```yaml
-# SimpleText /simpletext
-{
-    "template": {
-        "outputs": [
-            {
-                "simpleText": {
-                    "text": "메시지 입니다."
-                }
-            }
-        ]
-    },
-    "version": "2.0"
+## BasicCard, Carousel
+
+BasicCard는 New(썸네일, 버튼 bool) 초기화 후, 아이템들 입력 후 Build()
+
+Carousel은 New(케로셀헤더 bool) 초기화 후, 아이템들 입력 후 Build()
+
+```go
+import k "github.com/Alfex4936/kakao"
+
+// BasicCard 만들기
+func returnBasicCard(c *gin.Context) {
+	basicCard := k.BasicCard{}.New(true, true)  // 썸네일, 버튼 사용 여부
+	basicCard.Title = "제목입니다."
+	basicCard.Desc = "설명입니다."
+	basicCard.Thumbnail = k.Thumbnail{}.New("http://썸네일링크")
+
+	basicCard.Buttons.Add(k.LinkButton{}.New("날씨 홈피", "http://날씨 사이트"))
+	c.PureJSON(200, basicCard.Build())
 }
 
-# ListCard /listcard
-{
-    "template": {
-        "outputs": [
-            {
-                "listCard": {
-                    "buttons": [
-                        {
-                            "action": "share",
-                            "label": "공유하기"
-                        },
-                        {
-                            "action": "webLink",
-                            "label": "네이버 링크",
-                            "webLinkUrl": "https://www.naver.com/"
-                        }
-                    ],
-                    "header": {
-                        "title": "Hello ListCard"
-                    },
-                    "items": [
-                        {
-                            "imageUrl": "http://image",
-                            "title": "안녕하세요!"
-                        },
-                        {
-                            "title": "안녕하세요!",
-                            "link": {
-                                "web": "https://www.naver.com/"
-                            }
-                        }
-                    ]
-                }
-            }
-        ],
-        "quickReplies": [
-            {
-                "action": "message",
-                "label": "오늘",
-                "messageText": "오늘 날씨 알려줘"
-            },
-            {
-                "action": "message",
-                "label": "어제",
-                "messageText": "어제 날씨 알려줘"
-            }
-        ]
-    },
-    "version": "2.0"
+// Carousel 만들기
+func returnCarousel(c *gin.Context) {
+	carousel := k.Carousel{}.New(false)  // CarouselHeader 사용 여부
+
+    for _, person := range people.PhoneNumber {
+        // basicCard 케로셀에 담기
+		card1 := k.BasicCard{}.New(false, true)
+		card1.Title = fmt.Sprintf("%v (%v)", person.Name, person.Email)
+		card1.Desc = fmt.Sprintf("전화번호: %v\n부서명: %v", intel+person.TelNo, person.DeptNm)
+
+        // 전화 버튼, 웹 링크 버튼 케로셀에 담기
+		card1.Buttons.Add(k.CallButton{}.New("전화", intel+person.TelNo))
+		card1.Buttons.Add(k.LinkButton{}.New("이메일", fmt.Sprintf("mailto:%s?subject=안녕하세요.", person.Email)))
+
+		carousel.Cards.Add(card1)
+	}
+
+	c.PureJSON(200, carousel.Build())
 }
 ```
