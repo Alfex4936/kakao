@@ -15,3 +15,6 @@ push:
 
 push-tag:
 	git push origin main --tags
+
+tag:
+	git tag -a $(VERSION) -m $(MSG)

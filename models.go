@@ -29,7 +29,7 @@ type QuickReply struct {
 	Label   string `json:"label"`
 	Msg     string `json:"messageText"`
 	BlockID string `json:"blockId,omitempty"` // action "block"일 때 필수임
-	// Extra   K  `json:"extra,omitempty"`
+	Extra   *Kakao `json:"extra,omitempty"`
 }
 
 // * Buttons START
@@ -93,7 +93,7 @@ type Link struct {
 
 // * Items END
 
-// Request 카카오 서버에서 POST된 JSON 데이터용
+// Request 카카오 서버에서 POST JSON 데이터용
 type Request struct {
 	Action struct {
 		ID          string `json:"id"`
