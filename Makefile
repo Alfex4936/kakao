@@ -13,3 +13,5 @@ tags:
 push:
 	git push -u origin main
 
+push-tag:
+	git push origin main --tags
