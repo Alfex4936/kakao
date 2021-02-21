@@ -27,13 +27,13 @@ type BasicCard struct {
 }
 
 // ThumbNail BasicCard에 사용될 수 있는 요소
+//
+// 현재 ImageURL만 지원함
 type ThumbNail struct {
 	// ImageURL 필수 O
 	//
 	// 이미지의 url입니다.
 	ImageURL string `json:"imageUrl"`
-
-	// ! 아래는 아직 미지원
 
 	// Link 필수 X
 	//

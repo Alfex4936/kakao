@@ -8,7 +8,7 @@ import (
 var JSON = `
 {
 	"intent": {
-	  "id": "s1sabfeglft2g7alk79d9ye5",
+	  "id": "s1sabfeglft2g",
 	  "name": "블록 이름"
 	},
 	"userRequest": {
@@ -17,7 +17,7 @@ var JSON = `
 		"ignoreMe": "true"
 	  },
 	  "block": {
-		"id": "s1sabfeglft2g7alk79d9ye5",
+		"id": "s1sabfeglft2",
 		"name": "블록 이름"
 	  },
 	  "utterance": "하이!",
@@ -29,7 +29,7 @@ var JSON = `
 	  }
 	},
 	"bot": {
-	  "id": "5fe45a6ddfbb1f5802d7381f",
+	  "id": "5fe45a6ddfbb1",
 	  "name": "봇 이름"
 	},
 	"action": {
@@ -39,9 +39,9 @@ var JSON = `
 		"cate": "학사",
 		"when": "yesterday",
 		"sys_text": "코로나",
-		"search": "석원"
+		"search": "소프트"
 	  },
-	  "id": "3f7ir2rgub3p5ipvam6d2vwp",
+	  "id": "3f7ir2rgub3p",
 	  "detailParams": {
 		"sys_text": {
 		  "origin": "코로나",
@@ -54,7 +54,8 @@ var JSON = `
 `
 
 func TestUnMarshal(t *testing.T) {
-	expected := "하이!" // 발화 내용
+	expected := "하이!"       // 발화 내용
+	expectedParams := "소프트" // "search" 파라미터
 
 	data := &Request{}
 
@@ -63,7 +64,13 @@ func TestUnMarshal(t *testing.T) {
 	if got := data.UserRequest.Utterance; got != expected {
 		t.Errorf("Failed to UnMarshal Request: %q", got)
 	} else {
-		t.Logf("Correctly UnMarshalled Request")
+		t.Logf("Correctly got utterance from request")
+	}
+
+	if got := data.Action.Params["search"]; got != expectedParams {
+		t.Errorf("Failed to UnMarshal Request: %q", got)
+	} else {
+		t.Logf("Correctly got Params from request")
 	}
 }
 
@@ -194,4 +201,78 @@ func TestContextControl(t *testing.T) {
 		t.Logf("Correctly built ContextControl!")
 	}
 
+}
+
+// Benchmarks
+
+func BenchmarkJson(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		data := &Request{}
+
+		_ = json.Unmarshal([]byte(JSON), data)
+
+		_ = data.UserRequest.Utterance
+
+		_ = data.Action.Params["search"]
+	}
+}
+
+func BenchmarkBuildAll(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		// SimpleText
+		stext := SimpleText{}.Build("안녕하세요.")
+		json.Marshal(stext)
+
+		// ListCard
+		listCard := ListCard{}.New(true) // whether to use quickReplies or not
+		listCard.Title = "Hello ListCard"
+		// ListItem: Title, Description, imageUrl
+		listCard.Items.Add(ListItem{}.New("안녕하세요!", "", "http://image"))
+		// LinkListItem: Title, Description, imageUrl, address
+		listCard.Items.Add(ListItemLink{}.New("안녕하세요!", "", "", "https://www.naver.com/"))
+		listCard.Buttons.Add(ShareButton{}.New("공유하기"))
+		listCard.Buttons.Add(LinkButton{}.New("네이버 링크", "https://www.naver.com/"))
+		// QuickReplies: label, message (메시지 없으면 라벨로 발화)
+		listCard.QuickReplies.Add(QuickReply{}.New("오늘", "오늘 날씨 알려줘"))
+		listCard.QuickReplies.Add(QuickReply{}.New("어제", "어제 날씨 알려줘"))
+
+		json.Marshal(listCard.Build())
+
+		// BasicCard
+		basicCard := BasicCard{}.New(true, true)
+		basicCard.Title = "title!"
+		basicCard.Desc = "Descriptionss"
+		basicCard.ThumbNail = ThumbNail{}.New("http://thumb")
+		basicCard.Buttons.Add(LinkButton{}.New("날씨 홈피", "http://www"))
+		json.Marshal(basicCard.Build())
+
+		// Carousel (BasicCard)
+		carousel := Carousel{}.New(false)
+		card1 := BasicCard{}.New(false, true)
+		card1.Title = "title1"
+		card1.Desc = "desc1"
+		card1.Buttons.Add(CallButton{}.New("전화", "031"))
+		card1.Buttons.Add(LinkButton{}.New("이메일", "mailto:example@world.com?subject=안녕하세요."))
+		carousel.Cards.Add(card1)
+		card2 := BasicCard{}.New(false, true)
+		card2.Title = "title2"
+		card2.Desc = "desc2"
+		card2.Buttons.Add(CallButton{}.New("전화", "032"))
+		card2.Buttons.Add(LinkButton{}.New("이메일", "mailto:example@world.com?subject=안녕하세요."))
+		carousel.Cards.Add(card2)
+		json.Marshal(carousel.Build())
+
+		// SimpleImage
+		json.Marshal(SimpleImage{}.Build("http://", "ALT"))
+
+		// ContextControl
+		params1 := map[string]string{
+			"key1": "val1",
+			"key2": "val2",
+		}
+		ctx := ContextControl{}.New()
+		ctx.Values.Add(ContextValue{}.New("abc", 10, params1))
+		ctx.Values.Add(ContextValue{}.New("ghi", 0, nil))
+		json.Marshal(ctx.Build())
+	}
 }
