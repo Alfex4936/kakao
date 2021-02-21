@@ -30,8 +30,8 @@ tag:
 	git tag -a v$(VERSION) -m $(MSG)
 
 delete-tag:
-	git tag -d $(VERSION)
-	git push origin :$(VERSION)
+	git tag -d v$(VERSION)
+	git push origin :v$(VERSION)
 
 update-pkg-cache:
     GOPROXY=https://proxy.golang.org GO111MODULE=on go get github.com/$(USER)/$(PACKAGE)@v$(VERSION)
