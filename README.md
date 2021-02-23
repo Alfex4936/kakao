@@ -108,7 +108,7 @@ func returnBasicCard(c *gin.Context) {
 	basicCard := k.BasicCard{}.New(true, true)  // 썸네일, 버튼 사용 여부
 	basicCard.Title = "제목입니다."
 	basicCard.Desc = "설명입니다."
-	basicCard.Thumbnail = k.Thumbnail{}.New("http://썸네일링크")
+	basicCard.ThumbNail = k.ThumbNail{}.New("http://썸네일링크")
 
 	basicCard.Buttons.Add(k.LinkButton{}.New("날씨 홈피", "http://날씨 사이트"))
 	c.PureJSON(200, basicCard.Build())
