@@ -6,7 +6,8 @@ type Carousel struct {
 	Cards  *Kakao          `json:"items,omitempty"`  // Carousel에 쓰일 카드 (한 종류의 카드만 담을 것)
 	Header *CarouselHeader `json:"header,omitempty"` // 현재 CommerceCard만 지원
 
-	isHeader bool // false
+	isHeader   bool // false
+	isCommerce bool // false
 }
 
 // CarouselHeader 케로셀의 커버를 제공합니다. (필수 여부 X)
@@ -60,6 +61,34 @@ type ListCard struct {
 	Buttons      *Kakao      `json:"buttons"`                // 필수 여부 X, 최대 2개
 	QuickReplies *Kakao      `json:"quickReplies,omitempty"` // 필수 여부 X
 	Items        *Kakao      `json:"items"`                  // 필수 여부 O, 카드의 각각 아이템 (최대 5개)
+}
+
+// CommerceCard 커머스 카드형 출력 요소입니다.
+//
+// 커머스 카드는 제품에 대한 소개, 구매 안내 등을 사용자에게 전달할 수 있습니다.
+//
+// 커머스 카드는 제목과 설명 외에 썸네일 그룹, 프로필, 버튼 그룹, 가격 정보를 추가로 포함합니다.
+type CommerceCard struct {
+	Desc       string `json:"description"`        // 필수 여부 O, 제품에 대한 상세 설명입니다. (최대 76자)
+	Price      int    `json:"price"`              // 필수 여부 O, 제품의 가격입니다.
+	Discount   int    `json:"discount,omitempty"` // 필수 여부 X, 제품의 가격에 대한 할인할 금액입니다.
+	Currency   string `json:"currency"`           // 필수 여부 O, 제품의 가격에 대한 통화입니다. (현재 "won"만 가능)
+	ThumbNails *Kakao `json:"thumbnails"`         // 필수 여부 O, 제품에 대한 사진입니다. (현재 1개만 가능)
+	// DiscountRate 필수 여부 X, 제품의 가격에 대한 할인율입니다.
+	//
+	// discountRate과 discount가 동시에 있는 경우, discountRate을 우선적으로 노출합니다.
+	//
+	// discountRate은 discountedPrice를 필요로 합니다. discountedPrice가 주어지지 않으면 사용자에게 discountRate을 노출하지 않습니다.
+	DiscountRate    int      `json:"discountRate,omitempty"`
+	DiscountedPrice int      `json:"dicountedPrice,omitempty"` // 필수 여부 X, 제품의 가격에 대한 할인가(할인된 가격)입니다.
+	Profile         *Profile `json:"profile,omitempty"`        // 필수 여부 X, omitempty 제품을 판매하는 프로필 정보입니다.
+	Buttons         *Kakao   `json:"buttons"`                  // 필수 여부 O, 1개 이상 3개 이하, 다양한 액션을 수행할 수 있는 버튼입니다.
+}
+
+// Profile ...
+type Profile struct {
+	Nickname string `json:"nickname"`           // 필수 여부 O, 프로필 이름
+	ImageURL string `json:"imageUrl,omitempty"` // 필수 여부 X, 프로필 이미지
 }
 
 // SimpleText 간단한 텍스트형 출력 요소입니다.

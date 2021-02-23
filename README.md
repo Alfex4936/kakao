@@ -44,7 +44,7 @@ if err := c.BindJSON(&kjson); err != nil {
 fmt.Println(kjson.UserRequest.Utterance)  // 유저 발화문
 ```
 
-## SimpleText, SimpleImage ListCard
+## SimpleText, SimpleImage, ListCard
 
 SimpleText는 메시지만 넘기면 됩니다.
 
@@ -68,7 +68,7 @@ func returnSimpleText(c *gin.Context) {
 }
 
 // POST /simpleimage
-func returnSimpleText(c *gin.Context) {
+func returnSimpleImage(c *gin.Context) {
 	c.PureJSON(200, k.SimpleImage{}.Build("http://", "ALT"))
 }
 
@@ -98,7 +98,7 @@ func returnListCard(c *gin.Context) {
 
 BasicCard는 New(썸네일, 버튼 bool) 초기화 후, 아이템들 입력 후 Build()
 
-Carousel은 New(케로셀헤더 bool) 초기화 후, 아이템들 입력 후 Build()
+Carousel은 New(커머스 카드, 케로셀헤더 bool) 초기화 후, 아이템들 입력 후 Build()
 
 ```go
 import k "github.com/Alfex4936/kakao"
@@ -116,15 +116,15 @@ func returnBasicCard(c *gin.Context) {
 
 // Carousel 만들기
 func returnCarousel(c *gin.Context) {
-	carousel := k.Carousel{}.New(false)  // CarouselHeader 사용 여부
+	carousel := k.Carousel{}.New(false, false)  // CommerceCard X, CarouselHeader X
 
-    for _, person := range people.PhoneNumber {
-        // basicCard 케로셀에 담기
+	for _, person := range people.PhoneNumber {
+		// basicCard 케로셀에 담기
 		card1 := k.BasicCard{}.New(false, true)
 		card1.Title = fmt.Sprintf("%v (%v)", person.Name, person.Email)
 		card1.Desc = fmt.Sprintf("전화번호: %v\n부서명: %v", intel+person.TelNo, person.DeptNm)
 
-        // 전화 버튼, 웹 링크 버튼 케로셀에 담기
+		// 전화 버튼, 웹 링크 버튼 케로셀에 담기
 		card1.Buttons.Add(k.CallButton{}.New("전화", intel+person.TelNo))
 		card1.Buttons.Add(k.LinkButton{}.New("이메일", fmt.Sprintf("mailto:%s?subject=안녕하세요.", person.Email)))
 
@@ -132,6 +132,33 @@ func returnCarousel(c *gin.Context) {
 	}
 
 	c.PureJSON(200, carousel.Build())
+}
+```
+
+## CommerceCard
+
+New() -> Build()
+
+설명, 가격, 할인, 통화 ("won"), 썸네일 1개 필수
+
+```go
+import k "github.com/Alfex4936/kakao"
+
+// CommerceCard 만들기
+func returnCommerceCard(c *gin.Context) {
+	commerceCard := CommerceCard{}.New()
+	
+	commerceCard.Desc = "안녕하세요"
+	commerceCard.Price = 10000
+	commerceCard.Discount = 1000  // 할인
+	commerceCard.Currency = "won"  // "won"만 지원
+	commerceCard.ThumbNails.Add(ThumbNail{}.New("http://some.jpg"))  // 1개만 추가 가능
+
+	commerceCard.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1542"))
+	commerceCard.Buttons.Add(CallButton{}.New("전화하기", "354-86-00070"))
+	commerceCard.Buttons.Add(ShareButton{}.New("공유하기"))
+
+	c.PureJSON(200, commerceCard.Build())
 }
 ```
 

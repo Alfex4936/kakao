@@ -143,7 +143,7 @@ func TestCarousel(t *testing.T) { // BasicCards
 	expected := json.RawMessage(`{"template":{"outputs":[{"carousel":{"items":[{"title":"title1","description":"desc1","buttons":[{"label":"전화","action":"phone","phoneNumber":"031"},{"action":"webLink","label":"이메일","webLinkUrl":"mailto:example@world.com?subject=안녕하세요."}]},{"title":"title2","description":"desc2","buttons":[{"label":"전화","action":"phone","phoneNumber":"032"},{"action":"webLink","label":"이메일","webLinkUrl":"mailto:example@world.com?subject=안녕하세요."}]}],"type":"basicCard"}}]},"version":"2.0"}`)
 
 	// Building
-	carousel := Carousel{}.New(false)
+	carousel := Carousel{}.New(false, false)
 
 	card1 := BasicCard{}.New(false, true)
 	card1.Title = "title1"
@@ -169,6 +169,45 @@ func TestCarousel(t *testing.T) { // BasicCards
 
 }
 
+func TestCarouselCommerce(t *testing.T) { // CommerceCards
+	expected := json.RawMessage(`""{\"template\":{\"outputs\":[{\"carousel\":{\"items\":[{\"description\":\"안녕하세요\",\"price\":10000,\"discount\":1000,\"currency\":\"won\",\"thumbnails\":[{\"imageUrl\":\"http://some.jpg\"}],\"buttons\":[{\"action\":\"webLink\",\"label\":\"구매하기\",\"webLinkUrl\":\"https://kakao/1542\"},{\"label\":\"전화하기\",\"action\":\"phone\",\"phoneNumber\":\"354-86-00070\"},{\"action\":\"share\",\"label\":\"공유하기\"}]},{\"description\":\"안녕하세요\",\"price\":5900,\"discount\":500,\"currency\":\"won\",\"thumbnails\":[{\"imageUrl\":\"http://some22.jpg\"}],\"buttons\":[{\"action\":\"webLink\",\"label\":\"구매하기\",\"webLinkUrl\":\"https://kakao/1543\"},{\"label\":\"전화하기\",\"action\":\"phone\",\"phoneNumber\":\"354-86-00071\"},{\"action\":\"share\",\"label\":\"공유하기\"}]}],\"type\":\"commerceCard\"}}]},\"version\":\"2.0\"}""`)
+
+	// Building
+	carousel := Carousel{}.New(true, false)
+
+	commerceCard1 := CommerceCard{}.New()
+	commerceCard1.Desc = "안녕하세요"
+	commerceCard1.Price = 10000
+	commerceCard1.Discount = 1000
+	commerceCard1.Currency = "won"
+	commerceCard1.ThumbNails.Add(ThumbNail{}.New("http://some.jpg"))
+	commerceCard1.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1542"))
+	commerceCard1.Buttons.Add(CallButton{}.New("전화하기", "354-86-00070"))
+	commerceCard1.Buttons.Add(ShareButton{}.New("공유하기"))
+	carousel.Cards.Add(commerceCard1)
+
+	commerceCard2 := CommerceCard{}.New()
+	commerceCard2.Desc = "안녕하세요"
+	commerceCard2.Price = 5900
+	commerceCard2.Discount = 500
+	commerceCard2.Currency = "won"
+	commerceCard2.ThumbNails.Add(ThumbNail{}.New("http://some22.jpg"))
+	commerceCard2.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1543"))
+	commerceCard2.Buttons.Add(CallButton{}.New("전화하기", "354-86-00071"))
+	commerceCard2.Buttons.Add(ShareButton{}.New("공유하기"))
+	carousel.Cards.Add(commerceCard2)
+
+	res, _ := json.Marshal(carousel.Build())
+	t.Logf("Correctly built CarouselCard (CommerceCards)! %q", string(res))
+
+	if got := string(res); got != string(expected) {
+		t.Errorf("Failed to Marshal: %q, %q", got, string(expected))
+	} else {
+		t.Logf("Correctly built CarouselCard (CommerceCards)!")
+	}
+
+}
+
 func TestSimpleImage(t *testing.T) {
 	expected := json.RawMessage(`{"template":{"outputs":[{"simpleImage":{"altText":"ALT","imageUrl":"http://"}}]},"version":"2.0"}`)
 
@@ -178,6 +217,31 @@ func TestSimpleImage(t *testing.T) {
 		t.Errorf("Failed to Marshal: %q, %q", got, string(expected))
 	} else {
 		t.Logf("Correctly built SimpleImage!")
+	}
+
+}
+
+func TestCommerceCard(t *testing.T) {
+	expected := json.RawMessage(`{"template":{"outputs":[{"commerceCard":{"description":"안녕하세요","price":10000,"discount":1000,"currency":"won","thumbnails":[{"imageUrl":"http://some.jpg"}],"buttons":[{"action":"webLink","label":"구매하기","webLinkUrl":"https://kakao/1542"},{"label":"전화하기","action":"phone","phoneNumber":"354-86-00070"},{"action":"share","label":"공유하기"}]}}]},"version":"2.0"}`)
+
+	// Building
+	commerceCard := CommerceCard{}.New()
+	commerceCard.Desc = "안녕하세요"
+	commerceCard.Price = 10000
+	commerceCard.Discount = 1000
+	commerceCard.Currency = "won"
+	commerceCard.ThumbNails.Add(ThumbNail{}.New("http://some.jpg"))
+
+	commerceCard.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1542"))
+	commerceCard.Buttons.Add(CallButton{}.New("전화하기", "354-86-00070"))
+	commerceCard.Buttons.Add(ShareButton{}.New("공유하기"))
+
+	res, _ := json.Marshal(commerceCard.Build())
+
+	if got := string(res); got != string(expected) {
+		t.Errorf("Failed to Marshal: %q, %q", got, string(expected))
+	} else {
+		t.Logf("Correctly built CommerceCard!")
 	}
 
 }
@@ -247,7 +311,7 @@ func BenchmarkBuildAll(b *testing.B) {
 		json.Marshal(basicCard.Build())
 
 		// Carousel (BasicCard)
-		carousel := Carousel{}.New(false)
+		carousel := Carousel{}.New(false, false)
 		card1 := BasicCard{}.New(false, true)
 		card1.Title = "title1"
 		card1.Desc = "desc1"
@@ -274,5 +338,32 @@ func BenchmarkBuildAll(b *testing.B) {
 		ctx.Values.Add(ContextValue{}.New("abc", 10, params1))
 		ctx.Values.Add(ContextValue{}.New("ghi", 0, nil))
 		json.Marshal(ctx.Build())
+
+		// Carousel CommerceCards
+		carouselCom := Carousel{}.New(true, false)
+
+		commerceCard1 := CommerceCard{}.New()
+		commerceCard1.Desc = "안녕하세요"
+		commerceCard1.Price = 10000
+		commerceCard1.Discount = 1000
+		commerceCard1.Currency = "won"
+		commerceCard1.ThumbNails.Add(ThumbNail{}.New("http://some.jpg"))
+		commerceCard1.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1542"))
+		commerceCard1.Buttons.Add(CallButton{}.New("전화하기", "354-86-00070"))
+		commerceCard1.Buttons.Add(ShareButton{}.New("공유하기"))
+		carouselCom.Cards.Add(commerceCard1)
+
+		commerceCard2 := CommerceCard{}.New()
+		commerceCard2.Desc = "안녕하세요"
+		commerceCard2.Price = 5900
+		commerceCard2.Discount = 500
+		commerceCard2.Currency = "won"
+		commerceCard2.ThumbNails.Add(ThumbNail{}.New("http://some22.jpg"))
+		commerceCard2.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1543"))
+		commerceCard2.Buttons.Add(CallButton{}.New("전화하기", "354-86-00071"))
+		commerceCard2.Buttons.Add(ShareButton{}.New("공유하기"))
+		carouselCom.Cards.Add(commerceCard2)
+
+		json.Marshal(carouselCom.Build())
 	}
 }

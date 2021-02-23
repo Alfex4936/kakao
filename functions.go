@@ -48,6 +48,8 @@ func (c *Carousel) Build() K {
 	var template K
 	if c.isHeader {
 		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "header": c.Header, "items": c.Cards}}}}
+	} else if c.isCommerce {
+		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "items": c.Cards}}}}
 	} else {
 		template = K{"outputs": []K{{"carousel": K{"type": "basicCard", "items": c.Cards}}}}
 	}
@@ -69,6 +71,13 @@ func (ctx ContextControl) Build() K {
 	return contextControl
 }
 
+// Build (cc CommerceCard)
+func (cc CommerceCard) Build() K {
+	template := K{"outputs": []K{{"commerceCard": cc}}}
+	commerce := K{"version": "2.0", "template": template}
+	return commerce
+}
+
 // * New() function
 
 // New (l ListCard) Qr (bool) QuickReplies을 사용할지 true or false
@@ -82,11 +91,15 @@ func (l ListCard) New(Qr bool) *ListCard {
 }
 
 // New (c Carousel): header (bool)
-func (c Carousel) New(header bool) *Carousel {
+func (c Carousel) New(isCommerce, header bool) *Carousel {
 	c.Type = "label"
 	c.Cards = new(Kakao)
+	if isCommerce {
+		c.isCommerce = true
+	}
 	if header {
 		c.Header = new(CarouselHeader)
+		c.isCommerce = true
 		c.isHeader = true
 	}
 	return &c
@@ -188,4 +201,11 @@ func (ctv ContextValue) New(name string, lifeSpan int, params map[string]string)
 		ctv.Params = params
 	}
 	return &ctv
+}
+
+// New (cc CommerceCard)
+func (cc CommerceCard) New() *CommerceCard {
+	cc.ThumbNails = new(Kakao)
+	cc.Buttons = new(Kakao)
+	return &cc
 }
