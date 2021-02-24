@@ -170,7 +170,7 @@ func TestCarousel(t *testing.T) { // BasicCards
 }
 
 func TestCarouselCommerce(t *testing.T) { // CommerceCards
-	expected := json.RawMessage(`""{\"template\":{\"outputs\":[{\"carousel\":{\"items\":[{\"description\":\"안녕하세요\",\"price\":10000,\"discount\":1000,\"currency\":\"won\",\"thumbnails\":[{\"imageUrl\":\"http://some.jpg\"}],\"buttons\":[{\"action\":\"webLink\",\"label\":\"구매하기\",\"webLinkUrl\":\"https://kakao/1542\"},{\"label\":\"전화하기\",\"action\":\"phone\",\"phoneNumber\":\"354-86-00070\"},{\"action\":\"share\",\"label\":\"공유하기\"}]},{\"description\":\"안녕하세요\",\"price\":5900,\"discount\":500,\"currency\":\"won\",\"thumbnails\":[{\"imageUrl\":\"http://some22.jpg\"}],\"buttons\":[{\"action\":\"webLink\",\"label\":\"구매하기\",\"webLinkUrl\":\"https://kakao/1543\"},{\"label\":\"전화하기\",\"action\":\"phone\",\"phoneNumber\":\"354-86-00071\"},{\"action\":\"share\",\"label\":\"공유하기\"}]}],\"type\":\"commerceCard\"}}]},\"version\":\"2.0\"}""`)
+	expected := json.RawMessage(`{"template":{"outputs":[{"carousel":{"items":[{"description":"안녕하세요","price":10000,"discount":1000,"currency":"won","thumbnails":[{"imageUrl":"http://some.jpg"}],"buttons":[{"action":"webLink","label":"구매하기","webLinkUrl":"https://kakao/1542"},{"label":"전화하기","action":"phone","phoneNumber":"354-86-00070"},{"action":"share","label":"공유하기"}]},{"description":"안녕하세요","price":5900,"discount":500,"currency":"won","thumbnails":[{"imageUrl":"http://some22.jpg"}],"buttons":[{"action":"webLink","label":"구매하기","webLinkUrl":"https://kakao/1543"},{"label":"전화하기","action":"phone","phoneNumber":"354-86-00071"},{"action":"share","label":"공유하기"}]}],"type":"commerceCard"}}]},"version":"2.0"}`)
 
 	// Building
 	carousel := Carousel{}.New(true, false)
@@ -198,10 +198,9 @@ func TestCarouselCommerce(t *testing.T) { // CommerceCards
 	carousel.Cards.Add(commerceCard2)
 
 	res, _ := json.Marshal(carousel.Build())
-	t.Logf("Correctly built CarouselCard (CommerceCards)! %q", string(res))
 
 	if got := string(res); got != string(expected) {
-		t.Errorf("Failed to Marshal: %q, %q", got, string(expected))
+		t.Errorf("Failed to Marshal: \n%q\n %q", got, string(expected))
 	} else {
 		t.Logf("Correctly built CarouselCard (CommerceCards)!")
 	}
@@ -278,6 +277,14 @@ func BenchmarkJson(b *testing.B) {
 		_ = data.UserRequest.Utterance
 
 		_ = data.Action.Params["search"]
+	}
+}
+
+func BenchmarkSimpleText(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		// SimpleText
+		stext := SimpleText{}.Build("안녕하세요")
+		json.Marshal(stext)
 	}
 }
 

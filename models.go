@@ -95,27 +95,16 @@ type Profile struct {
 //
 // text가 500자가 넘는 경우, 500자 이후의 글자는 생략되고 전체 보기 버튼을 통해서 전체 내용을 확인할 수 있습니다.
 type SimpleText struct {
-	Template struct {
-		Outputs []struct {
-			SimpleText Text `json:"simpleText"`
-		} `json:"outputs"`
-	} `json:"template"`
-	Version string `json:"version"`
-}
-
-// Text for SimpleText
-type Text struct {
-	Text string `json:"text"`
 }
 
 // SimpleImage 간단한 이미지형 출력 요소입니다.
 //
-// 이미지 링크 주소를 포함하면 이를 스크랩하여 사용자에게 전달합니다.
+// 이미지 링크 주소(imageUrl)를 포함하면 이를 스크랩하여 사용자에게 전달합니다.
 //
-// 이미지 링크 주소가 유효하지 않을 수 있기 때문에, 대체 텍스트를 꼭 포함해야 합니다.
+// 이미지 링크 주소가 유효하지 않을 수 있기 때문에, 대체 텍스트(altText)를 꼭 포함해야 합니다.
 type SimpleImage struct {
-	ImageURL string `json:"imageUrl"` // 필수, 전달하고자 하는 이미지의 url입니다
-	AltText  string `json:"altText"`  // 필수, url이 유효하지 않은 경우, 전달되는 텍스트입니다 (최대 1000자)
+	// ImageURL string `json:"imageUrl"` // 필수, 전달하고자 하는 이미지의 url입니다
+	// AltText  string `json:"altText"`  // 필수, url이 유효하지 않은 경우, 전달되는 텍스트입니다 (최대 1000자)
 }
 
 // QuickReply 바로가기 응답은 발화와 동일합니다. 대신, 사용자가 직접 발화를 입력하지 않아도 선택을 통해서 발화를 전달하거나 다른 블록을 호출할 수 있습니다.

@@ -18,22 +18,10 @@ func (l *ListCard) Build() K {
 }
 
 // Build (s SimpleText)
-func (s SimpleText) Build(msg string) *SimpleText {
-	s.Version = "2.0"
-
-	var temp []struct {
-		SimpleText Text `json:"simpleText"`
-	}
-	simpleText := Text{Text: msg}
-
-	text := struct {
-		SimpleText Text `json:"simpleText"`
-	}{SimpleText: simpleText}
-
-	temp = append(temp, text)
-
-	s.Template.Outputs = temp
-	return &s
+func (s SimpleText) Build(msg string) K {
+	template := K{"outputs": []K{{"simpleText": K{"text": msg}}}}
+	simpleImage := K{"version": "2.0", "template": template}
+	return simpleImage
 }
 
 // Build (s SimpleImage)
