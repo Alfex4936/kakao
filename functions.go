@@ -22,8 +22,7 @@ func (l *ListCard) Build() K {
 
 // Build (s SimpleText)
 func (s SimpleText) Build(msg string, quickReplies Kakao) K {
-	var template K
-	template = K{"outputs": []K{{"simpleText": K{"text": msg}}}}
+	template := K{"outputs": []K{{"simpleText": K{"text": msg}}}}
 	if quickReplies != nil {
 		template["quickReplies"] = quickReplies
 	}
@@ -112,8 +111,8 @@ func (b BasicCard) New(tb, btn bool) *BasicCard {
 }
 
 // New (t ThumbNail): ImageUrl
-func (t ThumbNail) New(tm string) *ThumbNail {
-	t.ImageURL = tm
+func (t ThumbNail) New(imageURL string) *ThumbNail {
+	t.ImageURL = imageURL
 	return &t
 }
 
@@ -125,10 +124,10 @@ func (q QuickReply) New(label, msg string) *QuickReply {
 	return &q
 }
 
-// New (l LinkButton): msg (string), link (string)
-func (l LinkButton) New(msg, link string) *LinkButton {
+// New (l LinkButton): label (string), link (string)
+func (l LinkButton) New(label, link string) *LinkButton {
 	l.Action = "webLink"
-	l.Label = msg
+	l.Label = label
 	l.WebLink = link
 	return &l
 }
