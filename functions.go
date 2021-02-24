@@ -10,7 +10,10 @@ package kakao // import "github.com/Alfex4936/kakao"
 func (l *ListCard) Build() K {
 	l.Title = K{"title": l.Title.(string)}
 	template := K{"outputs": []K{{"listCard": K{"header": l.Title, "items": l.Items, "buttons": l.Buttons}}}}
-	template["quickReplies"] = l.QuickReplies
+
+	if l.QuickReplies != nil {
+		template["quickReplies"] = l.QuickReplies
+	}
 
 	listCard := K{"version": "2.0", "template": template}
 
@@ -18,8 +21,12 @@ func (l *ListCard) Build() K {
 }
 
 // Build (s SimpleText)
-func (s SimpleText) Build(msg string) K {
-	template := K{"outputs": []K{{"simpleText": K{"text": msg}}}}
+func (s SimpleText) Build(msg string, quickReplies Kakao) K {
+	var template K
+	template = K{"outputs": []K{{"simpleText": K{"text": msg}}}}
+	if quickReplies != nil {
+		template["quickReplies"] = quickReplies
+	}
 	simpleImage := K{"version": "2.0", "template": template}
 	return simpleImage
 }

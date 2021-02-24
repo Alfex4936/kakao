@@ -77,7 +77,7 @@ func TestUnMarshal(t *testing.T) {
 func TestSimpleText(t *testing.T) {
 	expected := json.RawMessage(`{"template":{"outputs":[{"simpleText":{"text":"안녕하세요."}}]},"version":"2.0"}`)
 
-	data := SimpleText{}.Build("안녕하세요.")
+	data := SimpleText{}.Build("안녕하세요.", nil)
 
 	res, _ := json.Marshal(data)
 
@@ -111,7 +111,7 @@ func TestListCard(t *testing.T) {
 	res, _ := json.Marshal(listCard.Build())
 
 	if got := string(res); got != string(expected) {
-		t.Errorf("Failed to Marshal: %q, %q", got, string(expected))
+		t.Errorf("Failed to Marshal: \n%q\n%q", got, string(expected))
 	} else {
 		t.Logf("Correctly built ListCard!")
 	}
@@ -283,7 +283,20 @@ func BenchmarkJson(b *testing.B) {
 func BenchmarkSimpleText(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// SimpleText
-		stext := SimpleText{}.Build("안녕하세요")
+		stext := SimpleText{}.Build("안녕하세요", nil)
+		json.Marshal(stext)
+	}
+}
+
+func BenchmarkSimpleTextQR(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var quickReplies Kakao
+		quickReplies.Add(QuickReply{}.New("111", "111"))
+		quickReplies.Add(QuickReply{}.New("222", "222"))
+		quickReplies.Add(QuickReply{}.New("333", "333"))
+
+		// SimpleText
+		stext := SimpleText{}.Build("안녕하세요", quickReplies)
 		json.Marshal(stext)
 	}
 }
@@ -291,7 +304,7 @@ func BenchmarkSimpleText(b *testing.B) {
 func BenchmarkBuildAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// SimpleText
-		stext := SimpleText{}.Build("안녕하세요.")
+		stext := SimpleText{}.Build("안녕하세요.", nil)
 		json.Marshal(stext)
 
 		// ListCard

@@ -12,7 +12,7 @@ test:
 	go test -v
 
 bench:
-	go test -bench=. -benchtime 100x
+	go test -benchmem -run=^$$ -bench $(name) -benchtime $(run)x github.com/Alfex4936/kakao
 
 fmt:
 	@gofmt -l -w $(SRC)
