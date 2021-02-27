@@ -3,6 +3,8 @@
     <img width="680" src="https://raw.githubusercontent.com/Alfex4936/kakaoChatbot-Ajou/main/imgs/chatbot.png">
 </p>
 <a href="https://pkg.go.dev/github.com/Alfex4936/kakao"><img src="https://pkg.go.dev/badge/github.com/Alfex4936/kakao.svg" alt="Go Reference"></a>
+	
+<a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FAlfex4936%2Fkakao&count_bg=%23000000&title_bg=%23000000&icon=strapi.svg&icon_color=%23FFFFFF&title=%7C&edge_flat=false"/></a>
 
 <h2>카카오톡 챗봇 빌더 도우미</h2>
 <h3>Go언어 전용</h3>
