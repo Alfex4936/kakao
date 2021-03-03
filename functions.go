@@ -1,7 +1,4 @@
-/*
-Package kakao 카카오 챗봇을 쉽게 만들 수 있게 도와줍니다.
-*/
-package kakao // import "github.com/Alfex4936/kakao"
+package kakao
 
 // * Build() function
 // ListCard, SimpleText, BasicCard, Carousel
@@ -39,12 +36,13 @@ func (s SimpleImage) Build(url, alt string) K {
 // Build (c *Carousel)
 func (c *Carousel) Build() K {
 	var template K
+
 	switch {
 	case !c.isCommerce && c.isHeader: // BasicCard + Header 테스트
 		template = K{"outputs": []K{{"carousel": K{"type": "basicCard", "header": c.Header, "items": c.Cards}}}}
-	case c.isHeader:
+	case c.isCommerce && c.isHeader:
 		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "header": c.Header, "items": c.Cards}}}}
-	case c.isCommerce:
+	case c.isCommerce && !c.isHeader:
 		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "items": c.Cards}}}}
 	default:
 		template = K{"outputs": []K{{"carousel": K{"type": "basicCard", "items": c.Cards}}}}
@@ -96,7 +94,6 @@ func (c Carousel) New(isCommerce, header bool) *Carousel {
 	}
 	if header {
 		c.Header = new(CarouselHeader)
-		c.isCommerce = true
 		c.isHeader = true
 	}
 	return &c
