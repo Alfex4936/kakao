@@ -8,8 +8,7 @@ package kakao // import "github.com/Alfex4936/kakao"
 
 // Build (l *ListCard)
 func (l *ListCard) Build() K {
-	l.Title = K{"title": l.Title.(string)}
-	template := K{"outputs": []K{{"listCard": K{"header": l.Title, "items": l.Items, "buttons": l.Buttons}}}}
+	template := K{"outputs": &[]K{{"listCard": K{"header": &K{"title": l.Title.(string)}, "items": l.Items, "buttons": l.Buttons}}}}
 
 	if l.QuickReplies != nil {
 		template["quickReplies"] = l.QuickReplies
@@ -26,8 +25,8 @@ func (s SimpleText) Build(msg string, quickReplies Kakao) K {
 	if quickReplies != nil {
 		template["quickReplies"] = quickReplies
 	}
-	simpleImage := K{"version": "2.0", "template": template}
-	return simpleImage
+	simpleText := K{"version": "2.0", "template": template}
+	return simpleText
 }
 
 // Build (s SimpleImage)
@@ -40,13 +39,17 @@ func (s SimpleImage) Build(url, alt string) K {
 // Build (c *Carousel)
 func (c *Carousel) Build() K {
 	var template K
-	if c.isHeader {
+	switch {
+	case !c.isCommerce && c.isHeader: // BasicCard + Header 테스트
+		template = K{"outputs": []K{{"carousel": K{"type": "basicCard", "header": c.Header, "items": c.Cards}}}}
+	case c.isHeader:
 		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "header": c.Header, "items": c.Cards}}}}
-	} else if c.isCommerce {
+	case c.isCommerce:
 		template = K{"outputs": []K{{"carousel": K{"type": "commerceCard", "items": c.Cards}}}}
-	} else {
+	default:
 		template = K{"outputs": []K{{"carousel": K{"type": "basicCard", "items": c.Cards}}}}
 	}
+
 	carousel := K{"version": "2.0", "template": template}
 	return carousel
 }
@@ -96,6 +99,14 @@ func (c Carousel) New(isCommerce, header bool) *Carousel {
 		c.isCommerce = true
 		c.isHeader = true
 	}
+	return &c
+}
+
+// New (c CarouselHeader):
+func (c CarouselHeader) New(title, description, imgURL string) *CarouselHeader {
+	c.Title = title
+	c.Desc = description
+	c.ThumbNail = ThumbNail{}.New(imgURL)
 	return &c
 }
 

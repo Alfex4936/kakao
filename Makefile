@@ -11,6 +11,9 @@ build:
 test:
 	go test -v
 
+gcc:
+	go build -gcflags "-m -m -l" $(file).go
+
 bench:
 	go test -benchmem -run=^$$ -bench $(name) -benchtime $(run)x github.com/Alfex4936/kakao
 
