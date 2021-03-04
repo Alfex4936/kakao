@@ -140,6 +140,14 @@ func (l LinkButton) New(label, link string) *LinkButton {
 	return &l
 }
 
+// New (m MsgButton): label (string), link (string)
+func (m MsgButton) New(label, msgTxt string) *MsgButton {
+	m.Action = "message"
+	m.Label = label
+	m.MsgTxt = msgTxt
+	return &m
+}
+
 // New (s ShareButton): label (string)
 func (s ShareButton) New(label string) *ShareButton {
 	s.Action = "share"
