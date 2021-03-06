@@ -102,6 +102,8 @@ BasicCard는 New(썸네일, 버튼 bool) 초기화 후, 아이템들 입력 후 
 
 Carousel은 New(커머스 카드, 케로셀헤더 bool) 초기화 후, 아이템들 입력 후 Build()
 
+(Carousel + BasicCard + CarouselHeader도 정상적으로 작동합니다.)
+
 ```go
 import k "github.com/Alfex4936/kakao"
 
@@ -144,7 +146,7 @@ New() -> Build()
 설명, 가격, 할인, 통화 ("won"), 썸네일 1개 필수
 
 ```go
-import k "github.com/Alfex4936/kakao"
+import . "github.com/Alfex4936/kakao"
 
 // CommerceCard 만들기
 func returnCommerceCard(c *gin.Context) {
@@ -154,7 +156,7 @@ func returnCommerceCard(c *gin.Context) {
 	commerceCard.Price = 10000
 	commerceCard.Discount = 1000  // 할인
 	commerceCard.Currency = "won"  // "won"만 지원
-	commerceCard.ThumbNails.Add(ThumbNail{}.New("http://some.jpg"))  // 1개만 추가 가능
+	commerceCard.ThumbNails.Add(ThumbNail{FixedRatio: true}.New("http://some.jpg"))  // 1개만 추가 가능, FixedRatio 변경 가능
 
 	commerceCard.Buttons.Add(LinkButton{}.New("구매하기", "https://kakao/1542"))
 	commerceCard.Buttons.Add(CallButton{}.New("전화하기", "354-86-00070"))
