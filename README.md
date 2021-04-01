@@ -12,7 +12,7 @@
 
 # 소개
 
-파이썬처럼 dictionary 타입을 쉽게 이용할 수 있지 않기 때문에,
+Go언어로 카카오 챗봇 서버를 만들 때 좀 더 쉽게 JSON 메시지 응답을 만들 수 있게 도와줍니다.
 
 SimpleText, SimpleImage, ListCard, Carousel, BasicCard, ContextControl JSON 데이터를 쉽게 만들 수 있도록 도와줍니다.
 
