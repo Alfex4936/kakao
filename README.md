@@ -188,3 +188,9 @@ func returnContextControl(c *gin.Context) {
 	c.PureJSON(200, ctx.Build())
 }
 ```
+
+# TODO
+
+output 배열에 여러가지 응답을 저장할 수 있다.
+
+그렇게 하려면 msg 리턴할 값을 하나 만들고 거기에 각 응답을 Build 하면 msg에 추가하는 방식이 나아보임
