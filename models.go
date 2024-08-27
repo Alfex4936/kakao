@@ -1,6 +1,9 @@
 package kakao
 
+// go:generate msgp
+
 // Carousel 케로셀은 여러 장의 카드를 하나의 메세지에 일렬로 포함하는 타입입니다.
+// msgp:tuple Carousel
 type Carousel struct {
 	Type   string          `json:"type,omitempty"`   // Build()에서 지정됨. (commerceCard, basicCard)
 	Cards  *Kakao          `json:"items,omitempty"`  // Carousel에 쓰일 카드 (한 종류의 카드만 담을 것)
@@ -11,6 +14,7 @@ type Carousel struct {
 }
 
 // CarouselHeader 케로셀의 커버를 제공합니다. (필수 여부 X)
+// msgp:tuple CarouselHeader
 type CarouselHeader struct {
 	Title     string     `json:"title"`       // 필수 O, 최대 2줄
 	Desc      string     `json:"description"` // 필수 O, 최대 3줄
@@ -20,6 +24,7 @@ type CarouselHeader struct {
 // BasicCard Title, Thumbnail 중 하나는 있어야 합니다.
 //
 // 기본 카드형 출력 요소입니다. 기본 카드는 소셜, 썸네일, 프로필 등을 통해서 사진이나 글, 인물 정보 등을 공유할 수 있습니다. 기본 카드는 제목과 설명 외에 썸네일 그룹, 프로필, 버튼 그룹, 소셜 정보를 추가로 포함합니다.
+// msgp:tuple BasicCard
 type BasicCard struct {
 	Title     string     `json:"title,omitempty"`       // 필수 X, 최대 2줄
 	Desc      string     `json:"description,omitempty"` // 필수 X, 최대 230자, Carousel에선 76자
@@ -30,6 +35,7 @@ type BasicCard struct {
 // ThumbNail BasicCard에 사용될 수 있는 요소
 //
 // 현재 ImageURL만 지원함
+// msgp:tuple ThumbNail
 type ThumbNail struct {
 	// ImageURL 필수 O
 	//
@@ -56,6 +62,7 @@ type ThumbNail struct {
 // ListCard 리스트 카드형 출력 요소입니다. 리스트 카드는 표현하고자 하는 대상이 다수일 때, 이를 효과적으로 전달할 수 있습니다.
 //
 // 헤더와 아이템을 포함하며, 헤더는 리스트 카드의 상단에 위치합니다. 리스트 상의 아이템은 각각의 구체적인 형태를 보여주며, 제목과 썸네일, 상세 설명을 포함합니다.
+// msgp:tuple ListCard
 type ListCard struct {
 	Title        interface{} `json:"header"`                 //  필수 여부 O, 카드의 상단 항목
 	Buttons      *Kakao      `json:"buttons"`                // 필수 여부 X, 최대 2개
@@ -68,6 +75,7 @@ type ListCard struct {
 // 커머스 카드는 제품에 대한 소개, 구매 안내 등을 사용자에게 전달할 수 있습니다.
 //
 // 커머스 카드는 제목과 설명 외에 썸네일 그룹, 프로필, 버튼 그룹, 가격 정보를 추가로 포함합니다.
+// msgp:tuple CommerceCard
 type CommerceCard struct {
 	Desc       string `json:"description"`        // 필수 여부 O, 제품에 대한 상세 설명입니다. (최대 76자)
 	Price      int    `json:"price"`              // 필수 여부 O, 제품의 가격입니다.
@@ -86,6 +94,7 @@ type CommerceCard struct {
 }
 
 // Profile ...
+// msgp:tuple Profile
 type Profile struct {
 	Nickname string `json:"nickname"`           // 필수 여부 O, 프로필 이름
 	ImageURL string `json:"imageUrl,omitempty"` // 필수 여부 X, 프로필 이미지
@@ -94,6 +103,7 @@ type Profile struct {
 // SimpleText 간단한 텍스트형 출력 요소입니다.
 //
 // text가 500자가 넘는 경우, 500자 이후의 글자는 생략되고 전체 보기 버튼을 통해서 전체 내용을 확인할 수 있습니다.
+// msgp:tuple SimpleText
 type SimpleText struct {
 }
 
@@ -102,6 +112,7 @@ type SimpleText struct {
 // 이미지 링크 주소(imageUrl)를 포함하면 이를 스크랩하여 사용자에게 전달합니다.
 //
 // 이미지 링크 주소가 유효하지 않을 수 있기 때문에, 대체 텍스트(altText)를 꼭 포함해야 합니다.
+// msgp:tuple SimpleImage
 type SimpleImage struct {
 	// ImageURL string `json:"imageUrl"` // 필수, 전달하고자 하는 이미지의 url입니다
 	// AltText  string `json:"altText"`  // 필수, url이 유효하지 않은 경우, 전달되는 텍스트입니다 (최대 1000자)
@@ -112,6 +123,7 @@ type SimpleImage struct {
 // Msg를 지정하지 않으면 Label로 발화가 됩니다.
 //
 // 사용법: k.QuickReply{}.New(label, msg)
+// msgp:tuple QuickReply
 type QuickReply struct {
 	Action  string `json:"action"` // message 또는 block
 	Label   string `json:"label"`  // 필수
@@ -123,6 +135,7 @@ type QuickReply struct {
 // * Buttons START
 
 // ShareButton action="share"가 기본 값인 버튼입니다.
+// msgp:tuple ShareButton
 type ShareButton struct {
 	Action string `json:"action"`                // 필수
 	Label  string `json:"label"`                 // 필수
@@ -131,6 +144,7 @@ type ShareButton struct {
 }
 
 // LinkButton action="webLink"가 기본 값인 버튼입니다.
+// msgp:tuple LinkButton
 type LinkButton struct {
 	Action  string `json:"action"`                // 필수
 	Label   string `json:"label"`                 // 필수
@@ -139,6 +153,7 @@ type LinkButton struct {
 }
 
 // MsgButton action="message"가 기본 값인 버튼입니다. (단순 메시지 버튼)
+// msgp:tuple MsgButton
 type MsgButton struct {
 	Label   string `json:"label"`                 // 버튼 14자(가로배열 2개 8자) 필수
 	Action  string `json:"action"`                // 필수
@@ -149,6 +164,7 @@ type MsgButton struct {
 // CallButton action="phone"이 기본 값인 버튼입니다.
 //
 // MsgTxt를 지정하지 않으면 Label이 발화됩니다.
+// msgp:tuple CallButton
 type CallButton struct {
 	Label       string `json:"label"`                 // 버튼 14자(가로배열 2개 8자) 필수
 	Action      string `json:"action"`                // phone 필수
@@ -162,6 +178,7 @@ type CallButton struct {
 // * Items START
 
 // ListItem 카드의 각각 아이템, Title은 필수 값입니다.
+// msgp:tuple ListItem
 type ListItem struct {
 	Image string `json:"imageUrl,omitempty"`
 	Desc  string `json:"description,omitempty"`
@@ -169,6 +186,7 @@ type ListItem struct {
 }
 
 // ListItemLink 카드의 각각 아이템 (+링크 값), Title, Link은 필수 값입니다.
+// msgp:tuple ListItemLink
 type ListItemLink struct {
 	Title string `json:"title"`                 // items에 들어가는 경우, 해당 항목의 제목이 됩니다.
 	Desc  string `json:"description,omitempty"` // items에 들어가는 경우, 해당 항목의 설명이 됩니다.
@@ -177,16 +195,19 @@ type ListItemLink struct {
 }
 
 // Link for ListItemLink
+// msgp:tuple Link
 type Link struct {
 	Link string `json:"web"`
 }
 
 // ContextControl 블록에서 생성한 outputContext의 lifeSpan, params 등을 제어할 수 있습니다.
+// msgp:tuple ContextControl
 type ContextControl struct {
 	Values *Kakao `json:"values"`
 }
 
 // ContextValue for ContextControl
+// msgp:tuple ContextValue
 type ContextValue struct {
 	// 수정하려는 output 컨텍스트의 이름
 	//
@@ -207,6 +228,7 @@ type ContextValue struct {
 // Request 카카오 서버에서 POST JSON 데이터용
 //
 // 예제) 유저 발화문 얻기: kjson.UserRequest.Utterance
+// msgp:tuple Request
 type Request struct {
 	Action struct {
 		ID          string `json:"id"`

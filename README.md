@@ -16,6 +16,9 @@ Go언어로 카카오 챗봇 서버를 만들 때 좀 더 쉽게 JSON 메시지 
 
 SimpleText, SimpleImage, ListCard, Carousel, BasicCard, ContextControl JSON 데이터를 쉽게 만들 수 있도록 도와줍니다.
 
+> [!NOTE]  
+> Use [https://github.com/bytedance/sonic](sonic) for JSON if possible.
+
 # 설치
 ```console
 ubuntu:~$ go get -u github.com/Alfex4936/kakao

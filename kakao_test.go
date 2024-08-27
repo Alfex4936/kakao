@@ -3,6 +3,8 @@ package kakao
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var JSON = `
@@ -54,34 +56,62 @@ var JSON = `
 `
 
 func TestUnMarshal(t *testing.T) {
-	expected := "하이!"       // 발화 내용
-	expectedParams := "소프트" // "search" 파라미터
+	expectedUtterance := "하이!" // 발화 내용
+	expectedParams := "소프트"    // "search" 파라미터
 
 	data := &Request{}
 
-	_ = json.Unmarshal([]byte(JSON), data)
-
-	if got := data.UserRequest.Utterance; got != expected {
-		t.Errorf("Failed to UnMarshal Request: %q", got)
-	} else {
-		t.Logf("Correctly got utterance from request")
+	// First, unmarshal the JSON input into the struct using the standard JSON unmarshal
+	err := json.Unmarshal([]byte(JSON), data)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal JSON: %v", err)
 	}
 
-	if got := data.Action.Params["search"]; got != expectedParams {
-		t.Errorf("Failed to UnMarshal Request: %q", got)
-	} else {
-		t.Logf("Correctly got Params from request")
+	// Now that we have the struct, let's test the msgp round-trip
+	msgpData, err := data.MarshalMsg(nil)
+	if err != nil {
+		t.Fatalf("Failed to marshal with msgp: %v", err)
 	}
+
+	// Unmarshal the MessagePack data back into the struct
+	newData := &Request{}
+	_, err = newData.UnmarshalMsg(msgpData)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal with msgp: %v", err)
+	}
+
+	// Compare the results
+	assert.Equal(t, expectedUtterance, newData.UserRequest.Utterance, "The utterance should match")
+	assert.Equal(t, expectedParams, newData.Action.Params["search"], "The search param should match")
 }
 
 func TestSimpleText(t *testing.T) {
-	expected := json.RawMessage(`{"template":{"outputs":[{"simpleText":{"text":"안녕하세요."}}]},"version":"2.0"}`)
+	expected := []byte(`{"template":{"outputs":[{"simpleText":{"text":"안녕하세요."}}]},"version":"2.0"}`)
 
+	// Build the SimpleText
 	data := SimpleText{}.Build("안녕하세요.", nil)
 
-	res, _ := json.Marshal(data)
+	// Marshal to MessagePack format using msgp
+	res, err := data.MarshalMsg(nil)
+	if err != nil {
+		t.Fatalf("Failed to marshal SimpleText: %v", err)
+	}
 
-	if got := string(res); got != string(expected) {
+	// Unmarshal the MessagePack back to Go struct
+	var unpackedData SimpleText
+	_, err = unpackedData.UnmarshalMsg(res)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal SimpleText: %v", err)
+	}
+
+	// Re-marshal to JSON for comparison
+	jsonData, err := json.Marshal(unpackedData)
+	if err != nil {
+		t.Fatalf("Failed to marshal to JSON: %v", err)
+	}
+
+	// Compare the JSON data with expected JSON
+	if got := string(jsonData); got != string(expected) {
 		t.Errorf("Failed to build SimpleText: %q, %q", got, expected)
 	} else {
 		t.Logf("Correctly built SimpleText")
@@ -89,33 +119,109 @@ func TestSimpleText(t *testing.T) {
 }
 
 func TestListCard(t *testing.T) {
-	expected := json.RawMessage(`{"template":{"outputs":[{"listCard":{"buttons":[{"action":"share","label":"공유하기"},{"action":"webLink","label":"네이버 링크","webLinkUrl":"https://www.naver.com/"}],"header":{"title":"Hello ListCard"},"items":[{"imageUrl":"http://image","title":"안녕하세요!"},{"title":"안녕하세요!","link":{"web":"https://www.naver.com/"}}]}}],"quickReplies":[{"action":"message","label":"오늘","messageText":"오늘 날씨 알려줘"},{"action":"message","label":"어제","messageText":"어제 날씨 알려줘"}]},"version":"2.0"}`)
-
-	// Building
-	listCard := ListCard{}.New(true) // whether to use quickReplies or not
-
-	listCard.Title = "Hello ListCard"
-
-	// ListItem: Title, Description, imageUrl
-	listCard.Items.Add(ListItem{}.New("안녕하세요!", "", "http://image"))
-	// LinkListItem: Title, Description, imageUrl, address
-	listCard.Items.Add(ListItemLink{}.New("안녕하세요!", "", "", "https://www.naver.com/"))
-
-	listCard.Buttons.Add(ShareButton{}.New("공유하기"))
-	listCard.Buttons.Add(LinkButton{}.New("네이버 링크", "https://www.naver.com/"))
-
-	// QuickReplies: label, message (메시지 없으면 라벨로 발화)
-	listCard.QuickReplies.Add(QuickReply{}.New("오늘", "오늘 날씨 알려줘"))
-	listCard.QuickReplies.Add(QuickReply{}.New("어제", "어제 날씨 알려줘"))
-
-	res, _ := json.Marshal(listCard.Build())
-
-	if got := string(res); got != string(expected) {
-		t.Errorf("Failed to Marshal: \n%q\n%q", got, string(expected))
-	} else {
-		t.Logf("Correctly built ListCard!")
+	// Building the expected ListCard
+	expected := ListCard{
+		Title:        "Hello ListCard",
+		Items:        &Kakao{},
+		Buttons:      &Kakao{},
+		QuickReplies: &Kakao{},
 	}
 
+	// ListItem: Title, Description, imageUrl
+	*expected.Items = append(*expected.Items, ListItem{}.New("안녕하세요!", "", "http://image"))
+	// LinkListItem: Title, Description, imageUrl, address
+	*expected.Items = append(*expected.Items, ListItemLink{}.New("안녕하세요!", "", "", "https://www.naver.com/"))
+
+	*expected.Buttons = append(*expected.Buttons, ShareButton{}.New("공유하기"))
+	*expected.Buttons = append(*expected.Buttons, LinkButton{}.New("네이버 링크", "https://www.naver.com/"))
+
+	// QuickReplies: label, message (메시지 없으면 라벨로 발화)
+	*expected.QuickReplies = append(*expected.QuickReplies, QuickReply{}.New("오늘", "오늘 날씨 알려줘"))
+	*expected.QuickReplies = append(*expected.QuickReplies, QuickReply{}.New("어제", "어제 날씨 알려줘"))
+
+	// Marshal the expected ListCard to MessagePack format
+	res, err := expected.MarshalMsg(nil)
+	if err != nil {
+		t.Fatalf("Failed to marshal ListCard: %v", err)
+	}
+
+	// Unmarshal the MessagePack data back to a new ListCard struct
+	var unpackedData ListCard
+	_, err = unpackedData.UnmarshalMsg(res)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal ListCard: %v", err)
+	}
+
+	// Compare the fields directly
+	assert.Equal(t, expected.Title, unpackedData.Title, "Titles should match")
+
+	// Compare the lengths of Items, Buttons, and QuickReplies
+	assert.Equal(t, len(*expected.Items), len(*unpackedData.Items), "Items length should match")
+	assert.Equal(t, len(*expected.Buttons), len(*unpackedData.Buttons), "Buttons length should match")
+	assert.Equal(t, len(*expected.QuickReplies), len(*unpackedData.QuickReplies), "QuickReplies length should match")
+
+	// Compare the content of each element in Items, Buttons, and QuickReplies
+	for i := range *expected.Items {
+		expectedItem := (*expected.Items)[i]
+		actualItemMap := (*unpackedData.Items)[i].(map[string]interface{})
+
+		switch v := expectedItem.(type) {
+		case ListItem:
+			actualItem := ListItem{
+				Image: actualItemMap["Image"].(string),
+				Desc:  actualItemMap["Desc"].(string),
+				Title: actualItemMap["Title"].(string),
+			}
+			assert.Equal(t, v, actualItem, "Items content should match")
+		case ListItemLink:
+			actualItem := ListItemLink{
+				Title: actualItemMap["Title"].(string),
+				Desc:  actualItemMap["Desc"].(string),
+				Image: actualItemMap["Image"].(string),
+				Link:  Link{Link: actualItemMap["Link"].(map[string]interface{})["Link"].(string)},
+			}
+			assert.Equal(t, v, actualItem, "Items content should match")
+		}
+	}
+
+	for i := range *expected.Buttons {
+		expectedButton := (*expected.Buttons)[i]
+		actualButtonMap := (*unpackedData.Buttons)[i].(map[string]interface{})
+
+		switch v := expectedButton.(type) {
+		case ShareButton:
+			actualButton := ShareButton{
+				Action: actualButtonMap["Action"].(string),
+				Label:  actualButtonMap["Label"].(string),
+				MsgTxt: actualButtonMap["MsgTxt"].(string),
+			}
+			assert.Equal(t, v, actualButton, "Buttons content should match")
+		case LinkButton:
+			actualButton := LinkButton{
+				Action:  actualButtonMap["Action"].(string),
+				Label:   actualButtonMap["Label"].(string),
+				WebLink: actualButtonMap["WebLink"].(string),
+				MsgTxt:  actualButtonMap["MsgTxt"].(string),
+			}
+			assert.Equal(t, v, actualButton, "Buttons content should match")
+		}
+	}
+
+	for i := range *expected.QuickReplies {
+		expectedQuickReply := (*expected.QuickReplies)[i]
+		actualQuickReplyMap := (*unpackedData.QuickReplies)[i].(map[string]interface{})
+
+		switch v := expectedQuickReply.(type) {
+		case QuickReply:
+			actualQuickReply := QuickReply{
+				Action:  actualQuickReplyMap["Action"].(string),
+				Label:   actualQuickReplyMap["Label"].(string),
+				Msg:     actualQuickReplyMap["Msg"].(string),
+				BlockID: actualQuickReplyMap["BlockID"].(string),
+			}
+			assert.Equal(t, v, actualQuickReply, "QuickReplies content should match")
+		}
+	}
 }
 
 func TestBasicCard(t *testing.T) {
@@ -297,7 +403,7 @@ func BenchmarkSimpleTextQR(b *testing.B) {
 
 		// SimpleText
 		stext := SimpleText{}.Build("안녕하세요", quickReplies)
-		json.Marshal(stext)
+		stext.MarshalMsg(nil)
 	}
 }
 

@@ -1,8 +1,12 @@
 package kakao
 
+// go:generate msgp
+
 // Kakao = []interface{}
+// msgp:tuple Kakao
 type Kakao []interface{}
 
+// msgp:tuple K
 // K = map[string]interface{}
 type K map[string]interface{}
 
